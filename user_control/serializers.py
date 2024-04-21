@@ -19,7 +19,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = get_user_model().objects.create_user(  # type: ignore
             email=validated_data["email"],
-            name=validated_data.get("name"),
+            name=validated_data["name"],
             password=validated_data["password"],
         )
         return user
@@ -60,3 +60,7 @@ class LoginSerializer(serializers.Serializer):
             "id": user.id,  # type: ignore
             "name": user.name,  # type: ignore
         }
+
+
+class LogoutSerializer(serializers.Serializer):
+    token = serializers.CharField(write_only=True)
