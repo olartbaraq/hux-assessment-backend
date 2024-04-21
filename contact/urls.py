@@ -17,12 +17,38 @@ Including another URLconf
 
 from django.contrib import admin  # type: ignore
 from django.urls import include, path  # type: ignore
-from user_control.views import login, logout, register_user  # type: ignore
+from rest_framework import permissions  # type: ignore
+from drf_yasg.views import get_schema_view  # type: ignore
+from drf_yasg import openapi  # type: ignore
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Snippets API",
+        default_version="v1",
+        description="This API docs contains all endpoints to the Contact Web APP",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contact@snippets.local"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
+    path(
+        "swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"
+    ),
+    path(
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path("", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("admin/", admin.site.urls),
-    path("api/v1/auth/register/", register_user, name="register"),
-    path("api/v1/auth/login/", login, name="login"),
-    path("api/v1/contact/", include("contact_control.urls")),
-    path("api/v1/auth/logout/", logout, name="logout"),
+    path("api/v1/", include("contact_control.urls")),
+    path("users/", include("user_control.urls")),
+    #     path("api/v1/auth/register/", register_user, name="register"),
+    #     path("api/v1/auth/login/", login, name="login"),
+    #     path("api/v1/auth/logout/", logout, name="logout"),
 ]

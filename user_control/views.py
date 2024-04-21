@@ -1,54 +1,115 @@
-import token
 from rest_framework.decorators import api_view, permission_classes  # type: ignore
-from rest_framework import status  # type: ignore
+from rest_framework import generics, status, permissions  # type: ignore
 from rest_framework.response import Response  # type: ignore
 from rest_framework.request import Request  # type: ignore
 from user_control.models import BlackListedToken
 from user_control.tokenauth import JWTAuthentication
 from .serializers import LogoutSerializer, SignUpSerializer, LoginSerializer
 from rest_framework.permissions import IsAuthenticated  # type: ignore
+from drf_yasg.utils import swagger_auto_schema  # type: ignore
 
 
-@api_view(["POST"])
-def register_user(request: Request):
-    serializer = SignUpSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class SignUpView(generics.GenericAPIView):
+    """The class that represents the sign up api view
+
+    Args:
+        generics (_type_): _description_
+    """
+
+    serializer_class = SignUpSerializer
+    permission_classes: list[str] = [permissions.AllowAny]
+
+    @swagger_auto_schema(operation_summary="Create a User")
+    def post(self, request: Request):
+        """post method that handle the sign up request
+
+        Args:
+            request (Request): enhance a standard HttpRequest instance.
+        """
+
+        data = request.data
+        valid_request = self.serializer_class(data=data)
+
+        if valid_request.is_valid():
+            valid_request.save()
+
+            response = {
+                "message": "User created successfully",
+                "data": valid_request.data,
+            }
+
+            return Response(data=response, status=status.HTTP_201_CREATED)
+
+        return Response(data=valid_request.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["POST"])
-def login(request: Request):
-    serializer = LoginSerializer(data=request.data)
+class LoginView(generics.GenericAPIView):
+    """This class represents the login api view
 
-    if serializer.is_valid():
-        token = JWTAuthentication.generate_token(payload=serializer.data)
-        return Response(
-            {
-                "message": "Login Successful",
-                "isLoggedIn": True,
-                "token": token,
-                "user": serializer.data,
-            },
-            status=status.HTTP_200_OK,
-        )
+    Args:
+        APIView (_type_): _description_
+    """
 
-    return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+    serializer_class = LoginSerializer
+    permission_classes: list[str] = [permissions.AllowAny]
+
+    @swagger_auto_schema(operation_summary="Login a User")
+    def post(self, request: Request):
+        """post method to authenticate the user
+
+        Args:
+            request (Request): _description_
+        """
+
+        data = request.data
+        valid_request = self.serializer_class(data=data)
+        if valid_request.is_valid(raise_exception=True):
+
+            token = JWTAuthentication.generate_token(payload=valid_request.data)
+            return Response(
+                {
+                    "message": "Login Successful",
+                    "isLoggedIn": True,
+                    "token": token,
+                    "user": valid_request.data,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(valid_request.errors, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def logout(request: Request):
-    serializer = LogoutSerializer(data=request.data)
-    if serializer.is_valid():
-        blacklisted_token_obj = BlackListedToken.objects.create(
-            token=serializer.validated_data["token"], user=request.user
-        )
-        blacklisted_token_obj.save()
-        return Response(
-            {
-                "message": "User logged out successfully",
-            },
-            status=status.HTTP_204_NO_CONTENT,
-        )
+class LogoutView(generics.GenericAPIView):
+    """This class represents the logout api view
+
+    Args:
+        APIView (_type_): _description_
+    """
+
+    serializer_class = LogoutSerializer
+    permission_classes: list[str] = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(operation_summary="Logout a User")
+    def post(self, request: Request):
+        """post method to authenticate the user
+
+        Args:
+            request (Request): _description_
+        """
+
+        data = request.data
+        valid_request = self.serializer_class(data=data)
+        if valid_request.is_valid(raise_exception=True):
+
+            blacklisted_token_obj = BlackListedToken.objects.create(
+                token=valid_request.validated_data["token"], user=request.user
+            )
+            blacklisted_token_obj.save()
+            return Response(
+                {
+                    "message": "User logged out successfully",
+                },
+                status=status.HTTP_204_NO_CONTENT,
+            )
+
+        return Response(valid_request.errors, status=status.HTTP_401_UNAUTHORIZED)

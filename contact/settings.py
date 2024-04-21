@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "user_control",
     "contact_control",
     "corsheaders",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "contact.wsgi.application"
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    }
+}
 
 
 # Database

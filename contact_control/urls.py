@@ -5,11 +5,7 @@ from .views import ContactViewSet
 
 router = DefaultRouter(trailing_slash=False)
 
-router.register("create-contact", ContactViewSet, "create a new contact")
-router.register("list-contacts", ContactViewSet, "list all contacts")
-router.register("get-contact", ContactViewSet, "retrieve a contact")
-router.register("update-contact", ContactViewSet, "edit a contact")
-router.register("delete-contact", ContactViewSet, "delete a contact")
+router.register("contact", ContactViewSet, "perform crud ops on contact")
 
 
 urlpatterns = [path("", include(router.urls))]
