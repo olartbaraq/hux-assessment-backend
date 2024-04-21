@@ -1,12 +1,12 @@
 import token
-from rest_framework.decorators import api_view  # type: ignore
+from rest_framework.decorators import api_view, permission_classes  # type: ignore
 from rest_framework import status  # type: ignore
 from rest_framework.response import Response  # type: ignore
 from rest_framework.request import Request  # type: ignore
 from user_control.models import BlackListedToken
 from user_control.tokenauth import JWTAuthentication
 from .serializers import LogoutSerializer, SignUpSerializer, LoginSerializer
-from user_control import serializers  # type: ignore
+from rest_framework.permissions import IsAuthenticated  # type: ignore
 
 
 @api_view(["POST"])
@@ -38,6 +38,7 @@ def login(request: Request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def logout(request: Request):
     serializer = LogoutSerializer(data=request.data)
     if serializer.is_valid():
