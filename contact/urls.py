@@ -17,10 +17,11 @@ Including another URLconf
 
 from django.contrib import admin  # type: ignore
 from django.urls import path  # type: ignore
-from user_control.views import login, register_user  # type: ignore
+from user_control.views import login, logout, register_user  # type: ignore
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/register/", register_user, name="register"),
     path("auth/login/", login, name="login"),
+    path("logout/", logout, name="logout"),
 ]
