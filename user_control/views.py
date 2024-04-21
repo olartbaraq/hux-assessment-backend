@@ -43,9 +43,12 @@ def logout(request: Request):
     serializer = LogoutSerializer(data=request.data)
     if serializer.is_valid():
         blacklisted_token_obj = BlackListedToken.objects.create(
-            token=serializer.data, user=request.user
+            token=serializer.validated_data["token"], user=request.user
         )
-        print(blacklisted_token_obj)
-    return Response(
-        {"message": "User logged out successfully"}, status=status.HTTP_204_NO_CONTENT
-    )
+        blacklisted_token_obj.save()
+        return Response(
+            {
+                "message": "User logged out successfully",
+            },
+            status=status.HTTP_204_NO_CONTENT,
+        )
