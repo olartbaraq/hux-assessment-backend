@@ -1,3 +1,4 @@
+from django.db import IntegrityError  # type: ignore
 from rest_framework.generics import CreateAPIView, ListAPIView  # type: ignore
 from .serializers import Contact, ContactSerializer
 from rest_framework.permissions import IsAuthenticated  # type: ignore
@@ -26,58 +27,49 @@ class CreateContactView(CreateAPIView):
         valid_request = self.serializer_class(data=data)
         if valid_request.is_valid(raise_exception=True):
 
-            contact_obj = Contact.objects.create(
-                firstname=valid_request["firstname"],
-                lastname=valid_request["lastname"],
-                phone_number=valid_request["phone_number"],
-                user=user,
-            )
+            try:
 
-            contact_obj.save()
-            return Response(
-                {
-                    "message": "Contact created successfully",
-                    "data": valid_request.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
+                contact_obj = Contact.objects.create(
+                    firstname=valid_request.validated_data["firstname"],
+                    lastname=valid_request.validated_data["lastname"],
+                    phone_number=valid_request.validated_data["phone_number"],
+                    user=user,
+                )
+
+                contact_obj.save()
+                return Response(
+                    {
+                        "message": "Contact created successfully",
+                        "data": valid_request.data,
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+            except IntegrityError as e:
+                return Response(
+                    {"error": f"You have added {valid_request["phone_number"]} already"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         return Response(valid_request.errors, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ListContactView(ListAPIView):
-    """this helps list all contacts of the request user by extending the CreateAPIView post method"""
+    """This helps list all contacts of the request user by extending the ListAPIView"""
 
     serializer_class = ContactSerializer
-    permission_classes: list[str] = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(operation_summary="List all Contacts")
-    def post(self, request: Request):
-        """post method to create a contact
+    def get(self, request: Request):
+        """
+        Retrieve a list of contacts added by the authenticated user.
 
         Args:
-            request (Request): _description_
+            request (Request): The incoming request object.
+
+        Returns:
+            Response: A Response object containing the list of contacts and a success status code.
         """
-
-        data = request.data
-        user = request.user
-        valid_request = self.serializer_class(data=data)
-        if valid_request.is_valid(raise_exception=True):
-
-            contact_obj = Contact.objects.create(
-                firstname=valid_request["firstname"],
-                lastname=valid_request["lastname"],
-                phone_number=valid_request["phone_number"],
-                user=user,
-            )
-
-            contact_obj.save()
-            return Response(
-                {
-                    "message": "Contact created successfully",
-                    "data": valid_request.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-
-        return Response(valid_request.errors, status=status.HTTP_401_UNAUTHORIZED)
+        contacts = Contact.objects.filter(user=request.user).order_by("-created_at")
+        serializer = self.get_serializer(contacts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

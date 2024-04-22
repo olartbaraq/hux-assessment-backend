@@ -24,6 +24,7 @@ class TestCreateView(APITestCase):
             "lastname": "test1",
             "firstname": "test2",
             "phone_number": "09081235647",
+            "user": self.user.id,
         }
 
     def test_create_contact_POST(self):
@@ -35,6 +36,7 @@ class TestCreateView(APITestCase):
             "lastname": "test1",
             "firstname": "test2",
             "phone_number": "09081235688",
+            "user": self.user.id,
         }
 
         # Create a request using the factory
@@ -61,18 +63,19 @@ class TestCreateView(APITestCase):
             Contact.objects.filter(phone_number=contact_data2["phone_number"]).exists()
         )
 
-    # def test_list_contacts_GET(self):
-    #     """
-    #     simple mockup test to simulate getting all contacts
-    #     """
-    #     Contact.objects.create(
-    #         lastname="test1",
-    #         firstname="test2",
-    #         phone_number="09081235647",
-    #     )
-    #     response = self.client.get(reverse("contact-list"), format="json")
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(response.data), 1)
+    def test_list_contacts_GET(self):
+        """
+        simple mockup test to simulate getting all contacts
+        """
+        Contact.objects.create(
+            lastname="test1",
+            firstname="test2",
+            phone_number="09081235647",
+            user=self.user,
+        )
+        response = self.client.get(reverse("list-contacts"), format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
 
     # def test_retrieve_contact_GET(self):
     #     contact = Contact.objects.create(
