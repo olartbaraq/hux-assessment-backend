@@ -39,8 +39,10 @@ class SignUpView(generics.GenericAPIView):
             }
 
             return Response(data=response, status=status.HTTP_201_CREATED)
-
-        return Response(data=valid_request.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                data=valid_request.errors, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class LoginView(generics.GenericAPIView):

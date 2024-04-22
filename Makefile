@@ -27,6 +27,9 @@ migrate:
 create_app:
 	@python manage.py startapp $(name)
 
+test_app:
+	@python manage.py test $(name)
+
 build_image:
 	#build project file to a docker image
 	@docker build -t escrowx:latest .
