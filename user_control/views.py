@@ -7,6 +7,30 @@ from user_control.tokenauth import JWTAuthentication
 from .serializers import LogoutSerializer, SignUpSerializer, LoginSerializer
 from rest_framework.permissions import IsAuthenticated  # type: ignore
 from drf_yasg.utils import swagger_auto_schema  # type: ignore
+from django.core.mail import EmailMultiAlternatives  # type: ignore
+from django.template.loader import render_to_string  # type: ignore
+from django.utils.html import strip_tags  # type: ignore
+import threading
+
+
+def send_mail_to_user(
+    subject: str,
+    from_email: str | None,
+    user: str,
+    recipient_list: list[str],
+):
+    html_message = render_to_string("content/email.html", context={"user": user})
+    plain_message = strip_tags(html_message)
+
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body=plain_message,
+        from_email=from_email,
+        to=recipient_list,
+    )
+
+    message.attach_alternative(html_message, "text/html")
+    message.send()
 
 
 class SignUpView(generics.GenericAPIView):
@@ -35,6 +59,22 @@ class SignUpView(generics.GenericAPIView):
         if valid_request.is_valid():
             # save user data to database
             valid_request.save()
+
+            # Send email notification to buyer
+
+            subject = "Welcome Aboard!!"
+            from_email = None
+            recipient_list = [
+                valid_request.data.get("email"),  # type: ignore
+            ]
+            user = valid_request.data.get("name")
+
+            # Create a new thread to send the email
+            email_thread = threading.Thread(
+                target=send_mail_to_user,
+                args=(subject, from_email, user, recipient_list),
+            )
+            email_thread.start()
 
             response = {
                 "message": "User created successfully",

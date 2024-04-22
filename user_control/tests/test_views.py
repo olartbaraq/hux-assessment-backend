@@ -1,4 +1,4 @@
-from django.test import TestCase  # type: ignore
+from rest_framework.test import APITestCase  # type: ignore
 from django.urls import reverse  # type: ignore
 from rest_framework import status  # type: ignore
 from rest_framework.test import APIClient, APIRequestFactory  # type: ignore
@@ -9,7 +9,7 @@ from user_control.views import LoginView, SignUpView  # type: ignore
 User = get_user_model()
 
 
-class TestRegisterView(TestCase):
+class TestRegisterView(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = APIClient()
@@ -46,7 +46,7 @@ class TestRegisterView(TestCase):
         self.assertIsNotNone(self.User.objects.filter(email="mubby@test3.com").exists())
 
 
-class TestLoginView(TestCase):
+class TestLoginView(APITestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = APIClient()

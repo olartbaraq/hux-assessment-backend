@@ -5,7 +5,7 @@ from .views import ContactViewSet
 
 router = DefaultRouter(trailing_slash=False)
 
-router.register("contact", ContactViewSet, "perform crud ops on contact")
+router.register("contact", ContactViewSet, basename="contact")
 
 
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [path("", include(router.urls), name="crud-contact")]
