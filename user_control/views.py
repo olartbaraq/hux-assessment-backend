@@ -28,9 +28,12 @@ class SignUpView(generics.GenericAPIView):
         """
 
         data = request.data
+
+        # valid incoming data from client to conform with serializer
         valid_request = self.serializer_class(data=data)
 
         if valid_request.is_valid():
+            # save user data to database
             valid_request.save()
 
             response = {
@@ -67,7 +70,9 @@ class LoginView(generics.GenericAPIView):
         valid_request = self.serializer_class(data=data)
         if valid_request.is_valid(raise_exception=True):
 
+            #  create a jwt token for the user using the assigned payload
             token = JWTAuthentication.generate_token(payload=valid_request.data)
+
             return Response(
                 {
                     "message": "Login Successful",
@@ -103,6 +108,7 @@ class LogoutView(generics.GenericAPIView):
         valid_request = self.serializer_class(data=data)
         if valid_request.is_valid(raise_exception=True):
 
+            # save the token to database and render invalid not to be used again
             blacklisted_token_obj = BlackListedToken.objects.create(
                 token=valid_request.validated_data["token"], user=request.user
             )
