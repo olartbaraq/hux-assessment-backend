@@ -1,18 +1,18 @@
 from django.db import models  # type: ignore
-
-# Create your models here.
+from user_control.models import User
 
 
 class Contact(models.Model):
     """Model Contact equivalent to Contcat tabble to store the contacts information
 
     Args:
-        models (class): a classnto be extends from while creating a Model/Table
+        models (class): a class into be extends from while creating a Model/Table
     """
 
     firstname = models.CharField(max_length=50, blank=False, null=False)
     lastname = models.CharField(max_length=50, blank=False, null=False)
-    phone_number = models.CharField(max_length=15, unique=True, blank=False, null=False)
+    phone_number = models.CharField(unique=True, blank=False, null=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

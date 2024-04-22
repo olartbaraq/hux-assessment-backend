@@ -48,7 +48,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("contact_control.urls")),
     path("api/v1/", include("user_control.urls")),
-    #     path("api/v1/auth/register/", register_user, name="register"),
-    #     path("api/v1/auth/login/", login, name="login"),
-    #     path("api/v1/auth/logout/", logout, name="logout"),
 ]

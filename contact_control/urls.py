@@ -1,11 +1,9 @@
-from django.urls import path, include  # type: ignore
-from rest_framework.routers import DefaultRouter  # type: ignore
-from .views import ContactViewSet
+from .views import CreateContactView  # type: ignore
+from django.urls import path  # type: ignore
 
 
-router = DefaultRouter(trailing_slash=False)
-
-router.register("contact", ContactViewSet, basename="contact")
-
-
-urlpatterns = [path("", include(router.urls), name="crud-contact")]
+urlpatterns = [
+    path("contact/create-contact/", CreateContactView.as_view(), name="create-contact"),
+    # path("auth/login/", LoginView.as_view(), name="login"),
+    # path("auth/logout/", LogoutView.as_view(), name="logout"),
+]

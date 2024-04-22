@@ -39,7 +39,7 @@ class TestCreateView(APITestCase):
 
         # Create a request using the factory
         response = self.client.post(
-            reverse("contact-list"),
+            reverse("create-contact"),
             self.contact_data,
             format="json",
         )
@@ -54,66 +54,66 @@ class TestCreateView(APITestCase):
 
         # Test with client
         client_response = self.client.post(
-            reverse("contact-list"), contact_data2, format="json"
+            reverse("create-contact"), contact_data2, format="json"
         )
         self.assertEqual(client_response.status_code, status.HTTP_201_CREATED)
         self.assertIsNotNone(
             Contact.objects.filter(phone_number=contact_data2["phone_number"]).exists()
         )
 
-    def test_list_contacts_GET(self):
-        """
-        simple mockup test to simulate getting all contacts
-        """
-        Contact.objects.create(
-            lastname="test1",
-            firstname="test2",
-            phone_number="09081235647",
-        )
-        response = self.client.get(reverse("contact-list"), format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+    # def test_list_contacts_GET(self):
+    #     """
+    #     simple mockup test to simulate getting all contacts
+    #     """
+    #     Contact.objects.create(
+    #         lastname="test1",
+    #         firstname="test2",
+    #         phone_number="09081235647",
+    #     )
+    #     response = self.client.get(reverse("contact-list"), format="json")
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(response.data), 1)
 
-    def test_retrieve_contact_GET(self):
-        contact = Contact.objects.create(
-            lastname="test1",
-            firstname="test2",
-            phone_number="09081235647",
-        )
-        response = self.client.get(
-            reverse(f"contact-detail", kwargs={"pk": contact.id}), format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["lastname"], "test1")
-        self.assertEqual(response.data["firstname"], "test2")
-        self.assertNotEqual(response.data["phone_number"], "12345432123")
+    # def test_retrieve_contact_GET(self):
+    #     contact = Contact.objects.create(
+    #         lastname="test1",
+    #         firstname="test2",
+    #         phone_number="09081235647",
+    #     )
+    #     response = self.client.get(
+    #         reverse(f"contact-detail", kwargs={"pk": contact.id}), format="json"
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(response.data["lastname"], "test1")
+    #     self.assertEqual(response.data["firstname"], "test2")
+    #     self.assertNotEqual(response.data["phone_number"], "12345432123")
 
-    def test_update_contact_PUT(self):
-        contact = Contact.objects.create(
-            lastname="test1", firstname="test2", phone_number="09081235647"
-        )
-        data = {
-            "lastname": "John",
-            "firstname": "Smith",
-            "phone_number": "1234567890",
-        }
-        response = self.client.put(
-            reverse("contact-detail", kwargs={"pk": contact.id}),
-            data=data,
-            format="json",
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        updated_contact = Contact.objects.get(pk=contact.id)
-        self.assertEqual(updated_contact.lastname, "John")
-        self.assertEqual(updated_contact.firstname, "Smith")
-        self.assertEqual(updated_contact.phone_number, "1234567890")
+    # def test_update_contact_PUT(self):
+    #     contact = Contact.objects.create(
+    #         lastname="test1", firstname="test2", phone_number="09081235647"
+    #     )
+    #     data = {
+    #         "lastname": "John",
+    #         "firstname": "Smith",
+    #         "phone_number": "1234567890",
+    #     }
+    #     response = self.client.put(
+    #         reverse("contact-detail", kwargs={"pk": contact.id}),
+    #         data=data,
+    #         format="json",
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     updated_contact = Contact.objects.get(pk=contact.id)
+    #     self.assertEqual(updated_contact.lastname, "John")
+    #     self.assertEqual(updated_contact.firstname, "Smith")
+    #     self.assertEqual(updated_contact.phone_number, "1234567890")
 
-    def test_delete_contact_DELETE(self):
-        contact = Contact.objects.create(
-            lastname="test1", firstname="test2", phone_number="09081235647"
-        )
-        response = self.client.delete(
-            reverse("contact-detail", kwargs={"pk": contact.id})
-        )
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Contact.objects.count(), 0)
+    # def test_delete_contact_DELETE(self):
+    #     contact = Contact.objects.create(
+    #         lastname="test1", firstname="test2", phone_number="09081235647"
+    #     )
+    #     response = self.client.delete(
+    #         reverse("contact-detail", kwargs={"pk": contact.id})
+    #     )
+    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertEqual(Contact.objects.count(), 0)

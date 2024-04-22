@@ -5,7 +5,6 @@ from rest_framework.request import Request  # type: ignore
 from user_control.models import BlackListedToken
 from user_control.tokenauth import JWTAuthentication
 from .serializers import LogoutSerializer, SignUpSerializer, LoginSerializer
-from rest_framework.permissions import IsAuthenticated  # type: ignore
 from drf_yasg.utils import swagger_auto_schema  # type: ignore
 from django.core.mail import EmailMultiAlternatives  # type: ignore
 from django.template.loader import render_to_string  # type: ignore

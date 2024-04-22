@@ -16,10 +16,11 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = [
             "id",
+            "firstname",
+            "lastname",
+            "phone_number",
+            "user",
             "created_at",
             "updated_at",
-            "lastname",
-            "firstname",
-            "phone_number",
         ]
-        read_only_fields = ("id", "created_at", "updated_at")
+        read_only_fields = ("id", "created_at", "updated_at", "user")
