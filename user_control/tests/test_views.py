@@ -43,42 +43,42 @@ class TestRegisterView(TestCase):
             reverse("register"), user_data2, format="json"
         )
         self.assertEqual(client_response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNotNone(self.User.objects.filter(email="mubby@test3.com").exists())
 
-    class TestLoginView(TestCase):
-        def setUp(self):
-            self.factory = APIRequestFactory()
-            self.client = APIClient()
-            self.user = User.objects.create_user(
-                email="mubby@test.com",
-                password="12345678",
-                name="Olart",
-            )
 
-        def test_login_user_POST(self):
-            user_data = {
-                "email": "mubby@test.com",
-                "password": "12345678",
-            }
+class TestLoginView(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            email="mubby@test.com",
+            password="12345678",
+            name="Olart",
+        )
 
-            # Create a request using the factory
-            request = self.factory.post(reverse("login"), user_data, format="json")
+    def test_login_user_POST(self):
+        user_data = {
+            "email": "mubby@test.com",
+            "password": "12345678",
+        }
 
-            # Pass the request to the view
-            response = LoginView.as_view()(request)
+        # Create a request using the factory
+        request = self.factory.post(reverse("login"), user_data, format="json")
 
-            # Assertions
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertTrue(response.data["isLoggedIn"])
-            self.assertDictEqual(
-                response.data["user"],
-                {"email": "mubby@test.com", "name": "Olart", "id": "1"},
-            )
+        # Pass the request to the view
+        response = LoginView.as_view()(request)
 
-            # Test with client
-            client_response = self.client.post(
-                reverse("login"), user_data, format="json"
-            )
-            self.assertEqual(client_response.status_code, status.HTTP_200_OK)
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["isLoggedIn"])
+        self.assertDictEqual(
+            response.data["user"],
+            {"email": "mubby@test.com", "name": "Olart", "id": "1"},
+        )
 
-        def tearDown(self):
-            self.user.delete()
+        # Test with client
+        client_response = self.client.post(reverse("login"), user_data, format="json")
+        self.assertEqual(client_response.status_code, status.HTTP_200_OK)
+
+    def tearDown(self):
+        self.user.delete()
