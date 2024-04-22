@@ -116,12 +116,15 @@ class TestCreateView(APITestCase):
         self.assertEqual(updated_contact.firstname, "Smith")
         self.assertEqual(updated_contact.phone_number, "1234567890")
 
-    # def test_delete_contact_DELETE(self):
-    #     contact = Contact.objects.create(
-    #         lastname="test1", firstname="test2", phone_number="09081235647"
-    #     )
-    #     response = self.client.delete(
-    #         reverse("contact-detail", kwargs={"pk": contact.id})
-    #     )
-    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-    #     self.assertEqual(Contact.objects.count(), 0)
+    def test_delete_contact_DELETE(self):
+        contact = Contact.objects.create(
+            lastname="test1",
+            firstname="test2",
+            phone_number="09081235647",
+            user=self.user,
+        )
+        response = self.client.delete(
+            reverse("delete-contact", kwargs={"pk": contact.id})
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Contact.objects.count(), 0)

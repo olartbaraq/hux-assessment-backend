@@ -1,4 +1,4 @@
-from .views import CreateContactView, ListContactView, UpdateContactView, RetrieveContactView  # type: ignore
+from .views import CreateContactView, ListContactView, UpdateContactView, RetrieveContactView, DeleteContactView  # type: ignore
 from django.urls import path  # type: ignore
 
 
@@ -14,5 +14,10 @@ urlpatterns = [
         "contact/retrieve-contact/<int:pk>/",
         RetrieveContactView.as_view(),
         name="retrieve-contact",
+    ),
+    path(
+        "contact/delete-contact/<int:pk>/",
+        DeleteContactView.as_view(),
+        name="delete-contact",
     ),
 ]

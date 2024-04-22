@@ -1,5 +1,5 @@
 from django.db import IntegrityError  # type: ignore
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView # type: ignore
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView, DestroyAPIView # type: ignore
 from .serializers import Contact, ContactSerializer
 from rest_framework.permissions import IsAuthenticated  # type: ignore
 from drf_yasg.utils import swagger_auto_schema  # type: ignore
@@ -124,3 +124,26 @@ class RetrieveContactView(RetrieveAPIView):
         serializer = self.get_serializer(contact)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class DeleteContactView(DestroyAPIView):
+    """This helps delete an existing contact by extending the RetrieveAPIView"""
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated]
+
+
+    @swagger_auto_schema(operation_summary="Delete a Contact")
+    def delete(self, request: Request, pk:int):
+        """
+        Delete an existing contact for the authenticated user.
+
+        Args:
+            request (Request): The incoming request object.
+            pk (int): The primary key of the contact to be deleted.
+
+        Returns:
+            Response: A Response object with a success message and a success status code.
+        """
+        contact = get_object_or_404(Contact, pk=pk, user=request.user)
+        contact.delete()
+        return Response({"message": "Contact deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
