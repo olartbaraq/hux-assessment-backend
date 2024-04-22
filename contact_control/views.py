@@ -1,11 +1,12 @@
 from django.db import IntegrityError  # type: ignore
-from rest_framework.generics import CreateAPIView, ListAPIView  # type: ignore
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, RetrieveAPIView # type: ignore
 from .serializers import Contact, ContactSerializer
 from rest_framework.permissions import IsAuthenticated  # type: ignore
 from drf_yasg.utils import swagger_auto_schema  # type: ignore
 from rest_framework.response import Response  # type: ignore
 from rest_framework.request import Request  # type: ignore
-from rest_framework import generics, status  # type: ignore
+from rest_framework import status  # type: ignore
+from django.shortcuts import get_object_or_404  # type: ignore
 
 
 class CreateContactView(CreateAPIView):
@@ -72,4 +73,54 @@ class ListContactView(ListAPIView):
         """
         contacts = Contact.objects.filter(user=request.user).order_by("-created_at")
         serializer = self.get_serializer(contacts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateContactView(UpdateAPIView):
+    """This helps update an existing contact by extending the UpdateAPIView"""
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(operation_summary="Update a Contact")
+    def put(self, request: Request, pk:int):
+        """
+        Update an existing contact for the authenticated user.
+
+        Args:
+            request (Request): The incoming request object.
+            pk (int): The primary key of the contact to be updated.
+
+        Returns:
+            Response: A Response object containing the updated contact and a success status code.
+        """
+        contact = get_object_or_404(Contact, pk=pk, user=request.user)
+        serializer = self.serializer_class(contact, data=request.data, partial=True)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class RetrieveContactView(RetrieveAPIView):
+    """This helps get an existing contact by extending the RetrieveAPIView"""
+    serializer_class = ContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(operation_summary="Get a Contact")
+    def get(self, request: Request, pk:int):
+        """
+        Get an existing contact for the authenticated user.
+
+        Args:
+            request (Request): The incoming request object.
+            pk (int): The primary key of the contact to be updated.
+
+        Returns:
+            Response: A Response object containing the updated contact and a success status code.
+        """
+        contact = get_object_or_404(Contact, pk=pk, user=request.user)
+        serializer = self.get_serializer(contact)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
