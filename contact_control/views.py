@@ -57,13 +57,11 @@ class CreateContactView(CreateAPIView):
 class ListContactView(ListAPIView):
     """This helps list all contacts of the request user by extending the ListAPIView"""
 
-    # queryset = Contact.objects.all()
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated]
-    pagination_class = pagination.PageNumberPagination
 
     @swagger_auto_schema(operation_summary="List all Contacts")
-    def get_queryset(self):
+    def get(self, request: Request):
         """
         Retrieve a list of contacts added by the authenticated user.
 
@@ -73,8 +71,9 @@ class ListContactView(ListAPIView):
         Returns:
             Response: A Response object containing the list of contacts and a success status code.
         """
-        user = self.request.user
-        return Contact.objects.filter(user=user).order_by("-created_at")
+        contacts = Contact.objects.filter(user=request.user).order_by("-created_at")
+        serializer = self.get_serializer(contacts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UpdateContactView(UpdateAPIView):
