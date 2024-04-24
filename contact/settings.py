@@ -73,7 +73,10 @@ ROOT_URLCONF = "contact.urls"
 REST_FRAMEWORK = {
     "NON_FIELD_ERRORS_KEY": "errors",
     "DEFAULT_AUTHENTICATION_CLASSES": ["user_control.tokenauth.JWTAuthentication"],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
+
 
 TEMPLATES = [
     {
