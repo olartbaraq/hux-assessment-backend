@@ -64,18 +64,70 @@ class TestCreateView(APITestCase):
         )
 
     def test_list_contacts_GET(self):
-        """
-        simple mockup test to simulate getting all contacts
-        """
+        """Test to simulate getting all contacts with pagination"""
+        # Create some contacts
         Contact.objects.create(
             lastname="test1",
             firstname="test2",
             phone_number="09081235647",
             user=self.user,
         )
+        Contact.objects.create(
+            lastname="test3",
+            firstname="test4",
+            phone_number="09081235648",
+            user=self.user,
+        )
+        Contact.objects.create(
+            lastname="test5",
+            firstname="test6",
+            phone_number="09081235649",
+            user=self.user,
+        )
+
         response = self.client.get(reverse("list-contacts"), format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+
+        # Check if the response contains pagination data
+        self.assertIn("count", response.data)
+        self.assertIn("next", response.data)
+        self.assertIn("previous", response.data)
+        self.assertIn("results", response.data)
+
+        # Check the number of results in the first page
+        self.assertEqual(len(response.data["results"]), 3)
+
+        # Check if the results contain the expected data
+        expected_data = [
+            {
+                "id": response.data["results"][0]["id"],
+                "lastname": "test5",
+                "firstname": "test6",
+                "phone_number": "09081235649",
+                "user": self.user.id,
+                "created_at": response.data["results"][0]["created_at"],
+                "updated_at": response.data["results"][0]["updated_at"],
+            },
+            {
+                "id": response.data["results"][1]["id"],
+                "lastname": "test3",
+                "firstname": "test4",
+                "phone_number": "09081235648",
+                "user": self.user.id,
+                "created_at": response.data["results"][1]["created_at"],
+                "updated_at": response.data["results"][1]["updated_at"],
+            },
+            {
+                "id": response.data["results"][2]["id"],
+                "lastname": "test1",
+                "firstname": "test2",
+                "phone_number": "09081235647",
+                "user": self.user.id,
+                "created_at": response.data["results"][2]["created_at"],
+                "updated_at": response.data["results"][2]["updated_at"],
+            },
+        ]
+        self.assertEqual(response.data["results"], expected_data)
 
     def test_retrieve_contact_GET(self):
         contact = Contact.objects.create(
